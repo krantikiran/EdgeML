@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 	if (version == Float)
 		dumpProfile();
 
-	if (datasetType == Training)
+	// if (datasetType == Training)
 		dumpRange(outputDir + "/profile.txt");
 
 	return 0;

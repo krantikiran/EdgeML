@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <cmath>
-
+#include <string.h>
+#include <fstream>
 #include "datatypes.h"
 #include "library_float.h"
 #include "profile.h"
@@ -416,25 +417,66 @@ void MulCir(float *A, float *B, float *C, MYINT I, MYINT J, MYINT shrA, MYINT sh
 	return;
 }
 
+int SCALE;
+
+
+int32_t fixedTanH(int32_t x){
+	int32_t fixedExp(int32_t x);
+	int32_t scale_factor = 1<<SCALE;
+    int32_t exp_res;
+    int32_t ans;
+    if (x < 0)
+    {
+        exp_res = fixedExp(2*x);
+        ans = int64_t((int64_t(exp_res - scale_factor))<<SCALE)/(int64_t(scale_factor + exp_res));
+    }
+    else
+    {
+        exp_res = fixedExp(-2*x);
+        ans = int64_t((int64_t(scale_factor-exp_res))<<SCALE)/(int64_t(scale_factor + exp_res));
+    }
+    return ans;
+}
+
 // A = tanh(A)
 void TanH(float *A, MYINT I, MYINT J, float scale_in, float scale_out, float *B)
 {
+		std::cout<<"tanh"<<std::endl;
+
+	// static float max_in, min_in;
+	// max_in = A[0];
+	// min_in = A[0];  
+	// int k;
+	std::ifstream scaleinfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/scaleinfile");
+	scaleinfile >> SCALE;
+	scaleinfile.close();
+	// uint32_t mask;
+	// memset(&mask, 255, 4);
+	// mask = mask << k;
 	for (MYITE i = 0; i < I; i++)
 	{
 		for (MYITE j = 0; j < J; j++)
 		{
 			float x = A[i * J + j], y;
+			// max_in = (x > max_in)?x:max_in;
+			// min_in = (x < min_in)? x: min_in;
+
 
 			#ifdef FLOATEXP
-			y = tanh(x);
+			int32_t newAns = fixedTanH(int32_t(x * (1<<SCALE)));
+			y = float(newAns)/(1<<SCALE);
 			#else
 			y = x > -1 ? x : -1;
 			y = y < 1 ? y : 1;
 			#endif
 
-			B[i * J + j] = y;
+			// uint32_t newB = ((*((uint32_t*)&y)) & mask);
+			B[i * J + j] = y;//*((float*)(&newB));
 		}
 	}
+	// std::ofstream routfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/tanhroutfile");
+	// routfile << min_in <<","<< max_in;
+	// routfile.close();
 	return;
 }
 
@@ -819,10 +861,93 @@ void NormaliseL2(float* A, MYINT N, MYINT H, MYINT W, MYINT C, MYINT scaleA, MYI
 	return;
 }
 
+
+#define INT_MAX 0x77777777
+#define INT_MIN (-INT_MAX-1)
+#define __LOG2E__ (1.44269504089 * (1<<SCALE/2))
+#define __LOGE2__ (0.69314718056 * (1<<SCALE/2))
+
+uint32_t computeULPErr(float calc, float actual)
+{
+    int32_t calc_xx =  *((int32_t*)&calc);
+    calc_xx = calc_xx<0?INT_MIN - calc_xx: calc_xx;
+
+    int32_t act_yy = *((int32_t*)&actual);
+    act_yy = act_yy<0?INT_MIN - act_yy: act_yy;
+  
+    uint32_t ulp_err = (calc_xx-act_yy)>0?(calc_xx-act_yy):(act_yy-calc_xx);
+
+    return ulp_err;
+}
+
+int32_t fixed_point_round(int32_t x){
+    int32_t mask = 1<<(SCALE-1);
+    
+    
+    int32_t val = (mask & x);
+    if ((mask & x) == 0){
+        x = x >> SCALE;
+    }
+    else
+    {   
+        x = (x >> SCALE) + 1;
+    }
+    
+    return x;
+}
+
+int32_t fixedExp(int32_t x){
+	int64_t t1, t2;
+	int32_t scale_factor = 1<<SCALE;
+    if (x < -10*scale_factor)
+        return 0;
+    t1 = int64_t(x) * int64_t(__LOG2E__);
+    int32_t N = fixed_point_round(t1 >> SCALE );
+    // cout<<"N "<<N<<endl;
+
+    t2 = int64_t((scale_factor*N)) * int64_t(__LOGE2__);
+    int32_t d = x -  (t2 >> SCALE) ;
+    // cout<<"d "<<float(d) / scale_factor<<endl;
+    
+    int count = 2;
+    int32_t y = d; 
+    int64_t big_y;
+    int32_t ans = scale_factor + y;
+	
+	int iter;
+	std::ifstream iterinfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/iterinfile");
+	iterinfile >> iter;
+	
+	for(int i = 0;i<12;i++){
+		big_y = int64_t(y)*int64_t(d);
+		y = big_y >> SCALE;
+		y = y/count;
+		ans += y;
+		count++;
+	}
+
+    if (N>0)
+        ans <<= N;
+    else if (N < 0)
+        ans >>= (-1*N);
+    
+    // cout << " ans "<<ans<<endl;
+
+    return ans;
+}
+
+
 // B = exp(A)
 void Exp(float *A, MYINT I, MYINT J, MYINT shrA, MYINT shrB, float *B)
 {
-
+	std::cout<<"exp"<<std::endl;
+	// uint32_t mask;
+	// memset(&mask, 255, 4);
+	// mask = mask << k;
+	// std::fstream ulprecordfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/errRecFile", std::ios::app);
+	std::ifstream scaleinfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/scaleinfile");
+	scaleinfile >> SCALE;
+	scaleinfile.close();
 	for (MYITE i = 0; i < I; i++)
 	{
 		for (MYITE j = 0; j < J; j++)
@@ -830,34 +955,82 @@ void Exp(float *A, MYINT I, MYINT J, MYINT shrA, MYINT shrB, float *B)
 			float x = A[i * J + j];
 
 			updateRangeOfExp(-x);
-
-			B[i * J + j] = exp(x);
+			// int32_t newAns = fixedExp(int32_t(x * (1<<SCALE)));
+			// float newA = float(newAns)/(1<<SCALE);
+			// uint32_t err = computeULPErr(newA, exp(x));
+			// ulprecordfile << newA << ", " << exp(x) << ", " << err << std::endl;
+			// uint32_t newB = ((*((uint32_t*)&newA)) & mask);
+			B[i * J + j] = exp(x);//newA;//*((float*)(&newB));
 		}
 	}
+	// ulprecordfile.close();
 
 	return;
 }
 
+int32_t fixedSigmoid(int32_t x){
+
+	int32_t scale_factor = 1<<SCALE;
+    int32_t exp_res;
+    int32_t ans;
+    if (x < 0)
+    {
+        exp_res = fixedExp(x);
+        ans = exp_res/((scale_factor + exp_res)>>(SCALE/2));
+        ans <<= (SCALE/2);
+    }
+    else
+    {
+        exp_res = fixedExp(-x);
+        // cout<<"okay"<<endl;
+        ans = scale_factor/((scale_factor + exp_res)>>(SCALE/2));
+        ans <<= (SCALE/2);
+    }
+    return ans;
+}
+
+
 // A = sigmoid(A)
 void Sigmoid(float *A, MYINT I, MYINT J, float div, float add, float sigmoid_limit, MYINT scale_in, MYINT scale_out, float *B)
 {
+		std::cout<<"sigmoid"<<std::endl;
+
+	// static float max_in = INT32_MIN, min_in = INT32_MAX;  
+	std::ifstream scaleinfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/scaleinfile");
+	scaleinfile >> SCALE;
+	scaleinfile.close();
+	// int k;
+	// std::ifstream kinfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/kinfile");
+	// kinfile >> k;
+	// uint32_t mask;
+	// memset(&mask, 255, 4);
+	// mask = mask << k;
 	for (MYITE i = 0; i < I; i++)
 	{
 		for (MYITE j = 0; j < J; j++)
 		{
 			float x = A[i * J + j], y;
+			
+			// max_in = x > max_in?x:max_in;
+			// min_in = x < min_in? x: min_in;
+
 			#ifdef FLOATEXP
-			y = 1 / (1 + exp(-x));
+			int32_t newAns = fixedSigmoid(int32_t(x * (1<<SCALE)));
+			y = float(newAns)/(1<<SCALE);
 			#else
 			y = (x + 1) / 2;
 			y = y > 0 ? y : 0;
 			y = y < 1 ? y : 1;
 			#endif
 
-			B[i * J + j] = y;
+			// uint32_t newB = ((*((uint32_t*)&y)) & mask);
+			B[i * J + j] = y;//*((float*)(&newB));
 		}
 	}
-	return;
+	// std::ofstream routfile("/home/krantikiran/msr/EdgeML/Tools/SeeDot/sigmoidroutfile");
+	// routfile << min_in <<","<< max_in;
+	// routfile.close();
+	// return;
 }
 
 // A = AdjustScaleShr(A)

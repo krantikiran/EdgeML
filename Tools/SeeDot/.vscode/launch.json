@@ -14,11 +14,11 @@
             "console": "integratedTerminal",
             "args": [
                 "-a",
-                "lenet",
+                "protonn",
                 "-v",
                 "fixed",
                 "-d",
-                "cifar-multiclass",
+                "cifar-binary",
                 "-m",
                 "red_disagree",
                 // "-t",
