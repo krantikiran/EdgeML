@@ -20,7 +20,7 @@ msbuildPathOptions = [r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Comm
 
 # Currently not supported (ddsEnabled = False and vbwEnabled = True) 
 ddsEnabled = True
-vbwEnabled = True
+vbwEnabled = False
 functionReducedProfiling = True
 
 trimHighestDecile = False

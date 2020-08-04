@@ -242,7 +242,8 @@ class Main:
                 # Refactor and remove this try/catch block in the futur 
                 try:
                     firstCompileSuccess = self.partialCompile(config.Version.fixed, config.Target.x86, highestValidScale, True, None, 0, dict(self.variableToBitwidthMap), list(self.demotedVarsList), dict(self.demotedVarsOffsets))
-                except:	
+                except Exception as e:	
+                    print("No   ",e)
                     firstCompileSuccess = False
 
                 if firstCompileSuccess:

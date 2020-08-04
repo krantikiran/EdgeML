@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 #pragma once
-#define FLOATEXP
 
 void MatAddNN(float *A, float *B, float *C, MYINT I, MYINT J, MYINT shrA, MYINT shrB, MYINT shrC);
 void MatAddCN(const float *A, float *B, float *C, MYINT I, MYINT J, MYINT shrA, MYINT shrB, MYINT shrC);

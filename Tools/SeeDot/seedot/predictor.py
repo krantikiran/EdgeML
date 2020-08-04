@@ -175,7 +175,7 @@ class Predictor:
     def readStatsFile(self):
         statsFile = os.path.join(
             "output", self.version, "stats-" + self.datasetType + ".txt")
-
+        print(statsFile)
         with open(statsFile, 'r') as file:
             content = file.readlines()
 
@@ -193,6 +193,7 @@ class Predictor:
     def run(self):
         res = self.build()
         if res == False:
+            print("Returning from failed build")
             return None
 
         execMap = self.execute()

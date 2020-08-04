@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 #pragma once
-
+#define FLOATEXP
 #include "datatypes.h"
 
 /**
