@@ -14,10 +14,12 @@ PREDICTOR_INCLUDES = datatypes.h \
 					vars_fixed.h \
 					vars_float.h \
 					library_fixed_div.h \
+					fixed_math_utils.h \
 				  
 PREDICTOR_OBJS = debug.o \
 				library_fixed.o \
 				library_fixed_div.o \
+				fixed_math_utils.o \
 				library_float.o \
 				main.o \
 				profile.o \
@@ -51,6 +53,9 @@ seedot_fixed.o: seedot_fixed.cpp $(PREDICTOR_INCLUDES)
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 seedot_float.o: seedot_float.cpp $(PREDICTOR_INCLUDES)
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+fixed_math_utils.o: fixed_math_utils.cpp $(PREDICTOR_INCLUDES)
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 clean: 

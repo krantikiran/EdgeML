@@ -4,7 +4,7 @@
 #pragma once
 #define FLOATEXP
 #include "datatypes.h"
-#include "library_fixed_div.h"
+#include "fixed_math_utils.h"
 /**
  * Notation used:
  * 		By default, 'matrix' is to be interpreted as a matrix in fixed point representation
