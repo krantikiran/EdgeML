@@ -7,6 +7,9 @@ void initializeProfiling();
 
 void updateRange(float x);
 void updateRangeOfExp(float x);
+void updateRangeOfExpFixed(float x, int scale_in, int scale_out);
+void updateRangeOfSigmoid(float x, int scale_in, int scale_out);
+void updateRangeOfTanH(float x, int scale_in, int scale_out);
 
 void dumpRange(std::string outputFile);
 

@@ -175,7 +175,6 @@ class Predictor:
     def readStatsFile(self):
         statsFile = os.path.join(
             "output", self.version, "stats-" + self.datasetType + ".txt")
-        print(statsFile)
         with open(statsFile, 'r') as file:
             content = file.readlines()
 

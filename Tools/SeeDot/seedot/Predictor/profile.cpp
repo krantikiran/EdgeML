@@ -17,6 +17,11 @@ using namespace std;
 
 float m_all, M_all;
 float m_exp, M_exp;
+float m_sig, M_sig;
+float m_tanh, M_tanh;
+int m_exp_in, M_exp_in, m_exp_out, M_exp_out;
+int m_sig_in, M_sig_in, m_sig_out, M_sig_out;
+int m_tanh_in, M_tanh_in, m_tanh_out, M_tanh_out;
 
 void initializeProfiling()
 {
@@ -25,6 +30,23 @@ void initializeProfiling()
 
 	m_exp = numeric_limits<float>::max();
 	M_exp = -numeric_limits<float>::max();
+
+	
+	m_sig = numeric_limits<float>::max();
+	M_sig = -numeric_limits<float>::max();
+
+
+	m_tanh = numeric_limits<float>::max();
+	M_tanh = -numeric_limits<float>::max();
+
+	m_exp_in = m_exp_out = numeric_limits<int>::max();
+	M_exp_in = M_exp_out = -numeric_limits<int>::max();
+
+	m_sig_in = m_sig_out = numeric_limits<int>::max();
+	M_sig_in = M_sig_out = -numeric_limits<int>::max();
+
+	m_tanh_in = m_tanh_out = numeric_limits<int>::max();
+	M_tanh_in = M_tanh_out = -numeric_limits<int>::max();
 
 	return;
 }
@@ -47,6 +69,57 @@ void updateRangeOfExp(float x)
 	return;
 }
 
+void updateRangeOfExpFixed(float x, int scale_in, int scale_out)
+{
+	if (scale_in < m_exp_in)
+		m_exp_in = scale_in;
+	if (scale_in > M_exp_in)
+		M_exp_in = scale_in;
+	
+	if (scale_out < m_exp_out)
+		m_exp_out = scale_out;
+	if (scale_out > M_exp_out)
+		M_exp_out = scale_out;
+	return;
+}
+void updateRangeOfSigmoid(float x, int scale_in, int scale_out)
+{
+	if (x < m_sig)
+		m_sig = x;
+	if (x > M_sig)
+		M_sig = x;
+	
+	if (scale_in < m_sig_in)
+		m_sig_in = scale_in;
+	if (scale_in > M_sig_in)
+		M_sig_in = scale_in;
+	
+	if (scale_out < m_sig_out)
+		m_sig_out = scale_out;
+	if (scale_out > M_sig_out)
+		M_sig_out = scale_out;
+	return;
+}
+
+void updateRangeOfTanH(float x, int scale_in, int scale_out)
+{
+	if (x < m_tanh)
+		m_tanh = x;
+	if (x > M_tanh)
+		M_tanh = x;
+	
+	if (scale_in < m_tanh_in)
+		m_tanh_in = scale_in;
+	if (scale_in > M_tanh_in)
+		M_tanh_in = scale_in;
+	
+	if (scale_out < m_tanh_out)
+		m_tanh_out = scale_out;
+	if (scale_out > M_tanh_out)
+		M_tanh_out = scale_out;
+	return;
+}
+
 void dumpRange(string outputFile)
 {
 	ofstream fout(outputFile);
@@ -54,8 +127,12 @@ void dumpRange(string outputFile)
 	fout.precision(6);
 	fout << fixed;
 	fout << m_all << ", " << M_all << endl;
-	fout << m_exp << ", " << M_exp << endl;
-
+	fout << m_exp << ", " << M_exp << ", " << m_exp_in << ", "
+		 << M_exp_in << ", " << m_exp_out << ", " << M_exp_out << endl;
+	fout<< m_sig << ", " << M_sig << ", " << m_sig_in << ", "
+		 << M_sig_in << ", " << m_sig_out << ", " << M_sig_out << endl;
+	fout<< m_tanh << ", " << M_tanh << ", " << m_tanh_in << ", "
+		 << M_tanh_in << ", " << m_tanh_out << ", " << M_tanh_out << endl;
 	return;
 }
 

@@ -13,9 +13,11 @@ PREDICTOR_INCLUDES = datatypes.h \
 					profile.h \
 					vars_fixed.h \
 					vars_float.h \
+					library_fixed_div.h \
 				  
 PREDICTOR_OBJS = debug.o \
 				library_fixed.o \
+				library_fixed_div.o \
 				library_float.o \
 				main.o \
 				profile.o \
@@ -30,7 +32,10 @@ Predictor: $(PREDICTOR_OBJS)
 debug.o: debug.cpp $(PREDICTOR_INCLUDES)
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-library_fixed.o: library_fixed.cpp $(PREDICTOR_INCLUDES)
+library_fixed.o: library_fixed.cpp library_fixed_div.cpp $(PREDICTOR_INCLUDES)
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+library_fixed_div.o: library_fixed_div.cpp $(PREDICTOR_INCLUDES)
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 library_float.o: library_float.cpp $(PREDICTOR_INCLUDES)

@@ -857,7 +857,7 @@ uint32_t computeULPErr(float calc, float actual);
 //     return ulp_err;
 // }
 
-int32_t fixed_point_round(int32_t x);
+// int32_t fixed_point_round(int32_t x);
 // {
 //     int32_t mask = 1<<(SCALE-1);
     
@@ -874,7 +874,7 @@ int32_t fixed_point_round(int32_t x);
 //     return x;
 // }
 
-int32_t fixedExp(int32_t x);
+// int32_t fixedExp(int32_t x);
 // {
 // 	int64_t t1, t2;
 // 	int32_t scale_factor = 1<<SCALE;

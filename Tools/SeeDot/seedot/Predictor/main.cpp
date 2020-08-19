@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
 
 	stats.close();
 
-	if (version == Float)
+	// if (version == Float)
 		dumpProfile();
 
 	// if (datasetType == Training)
